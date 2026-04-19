@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cyber Security Incident Cost Calculator</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <style>
+            :root {
+                --bg: #0f172a;
+                --panel: rgba(15, 23, 42, 0.78);
+                --border: rgba(34, 211, 238, 0.28);
+                --text: #e2e8f0;
+                --muted: #94a3b8;
+                --cyan: #22d3ee;
+                --blue: #38bdf8;
+                --glow: 0 0 18px rgba(34, 211, 238, 0.22);
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html {
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family:
+                    Inter,
+                    ui-sans-serif,
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    'Segoe UI',
+                    sans-serif;
+                background:
+                    radial-gradient(circle at 20% 20%, rgba(34, 211, 238, 0.12), transparent 24%), radial-gradient(circle at 80% 10%, rgba(56, 189, 248, 0.12), transparent 22%),
+                    radial-gradient(circle at 50% 100%, rgba(59, 130, 246, 0.1), transparent 28%), linear-gradient(180deg, #0b1120 0%, var(--bg) 45%, #020617 100%);
+                color: var(--text);
+                min-height: 100vh;
+                overflow-x: hidden;
+            }
+
+            .grid-overlay::before {
+                content: '';
+                position: fixed;
+                inset: 0;
+                background-image: linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+                background-size: 36px 36px;
+                mask-image: radial-gradient(circle at center, black 45%, transparent 90%);
+                pointer-events: none;
+                z-index: 0;
+            }
+
+            .glass {
+                background: var(--panel);
+                border: 1px solid var(--border);
+                box-shadow:
+                    var(--glow),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+            }
+
+            .neon-text {
+                text-shadow: 0 0 14px rgba(34, 211, 238, 0.35);
+            }
+
+            .stat-card {
+                transition:
+                    transform 0.25s ease,
+                    border-color 0.25s ease,
+                    box-shadow 0.25s ease;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-2px);
+                border-color: rgba(34, 211, 238, 0.45);
+                box-shadow: 0 0 24px rgba(34, 211, 238, 0.2);
+            }
+
+            input[type='range'] {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 100%;
+                height: 10px;
+                border-radius: 999px;
+                background: linear-gradient(90deg, rgba(34, 211, 238, 0.9), rgba(56, 189, 248, 0.35));
+                outline: none;
+            }
+
+            input[type='range']::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: linear-gradient(180deg, #67e8f9, #22d3ee);
+                border: 2px solid #cffafe;
+                box-shadow:
+                    0 0 0 4px rgba(34, 211, 238, 0.14),
+                    0 0 20px rgba(34, 211, 238, 0.45);
+                cursor: pointer;
+            }
+
+            input[type='range']::-moz-range-thumb {
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                background: linear-gradient(180deg, #67e8f9, #22d3ee);
+                border: 2px solid #cffafe;
+                box-shadow:
+                    0 0 0 4px rgba(34, 211, 238, 0.14),
+                    0 0 20px rgba(34, 211, 238, 0.45);
+                cursor: pointer;
+            }
+
+            .select-glow:focus,
+            .slider-wrap:focus-within {
+                box-shadow:
+                    0 0 0 1px rgba(34, 211, 238, 0.45),
+                    0 0 18px rgba(34, 211, 238, 0.16);
+            }
+
+            .number-glow {
+                background: linear-gradient(90deg, #67e8f9, #38bdf8);
+                -webkit-background-clip: text;
+                background-clip: text;
+                color: transparent;
+            }
+        </style>
+    </head>
+    <body class="grid-overlay">
+        <main class="relative z-10 min-h-screen">
+            <section class="mx-auto flex min-h-screen w-full max-w-7xl items-center px-4 py-10 sm:px-6 lg:px-8">
+                <div class="grid w-full gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+                    <div class="space-y-6">
+                        <div class="inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-cyan-300">Cyber Risk Estimation Tool</div>
+
+                        <div class="space-y-4">
+                            <h1 class="neon-text text-4xl font-black leading-tight text-slate-100 sm:text-5xl lg:text-6xl">Cyber Security Incident Cost Calculator</h1>
+                            <p class="max-w-2xl text-base leading-7 text-slate-300 sm:text-lg">
+                                Estimate the potential financial impact of a data breach using adjustable record volume and industry risk multipliers. Built as a client-side calculator with no server-side data collection.
+                            </p>
+                        </div>
+
+                        <div class="glass rounded-3xl p-5 sm:p-7">
+                            <div class="grid gap-6">
+                                <div>
+                                    <div class="mb-3 flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+                                        <label for="recordsRange" class="text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300"> Number of Stolen Records </label>
+                                        <div class="rounded-2xl border border-cyan-400/20 bg-slate-950/40 px-4 py-2 text-right">
+                                            <div class="text-xs uppercase tracking-[0.2em] text-slate-400">Selected Volume</div>
+                                            <div id="recordsValue" class="number-glow text-2xl font-extrabold sm:text-3xl">10,000</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="slider-wrap rounded-2xl border border-cyan-400/20 bg-slate-950/40 p-4 transition">
+                                        <input id="recordsRange" type="range" min="100" max="100000" step="100" value="10000" />
+                                        <div class="mt-3 flex justify-between text-xs text-slate-400">
+                                            <span>100</span>
+                                            <span>100,000</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label for="industrySelect" class="mb-3 block text-sm font-semibold uppercase tracking-[0.2em] text-cyan-300"> Industry </label>
+                                    <div class="select-glow rounded-2xl border border-cyan-400/20 bg-slate-950/40 transition">
+                                        <select id="industrySelect" class="w-full appearance-none rounded-2xl bg-transparent px-4 py-4 text-base font-medium text-slate-100 outline-none">
+                                            <option value="finance">Finance</option>
+                                            <option value="healthcare" selected>Healthcare</option>
+                                            <option value="retail">Retail</option>
+                                            <option value="it">IT</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div class="rounded-2xl border border-cyan-400/15 bg-slate-950/35 p-4">
+                                        <div class="text-xs uppercase tracking-[0.18em] text-slate-400">Base Cost / Record</div>
+                                        <div id="costPerRecord" class="mt-2 text-2xl font-bold text-cyan-300">$320</div>
+                                    </div>
+                                    <div class="rounded-2xl border border-cyan-400/15 bg-slate-950/35 p-4">
+                                        <div class="text-xs uppercase tracking-[0.18em] text-slate-400">Industry Multiplier</div>
+                                        <div id="industryMultiplier" class="mt-2 text-2xl font-bold text-cyan-300">1.35×</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div class="glass rounded-3xl p-5 sm:p-7">
+                            <div class="mb-5 flex items-center justify-between gap-4">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300">Estimated Exposure</p>
+                                    <h2 class="mt-2 text-2xl font-bold text-slate-100 sm:text-3xl">Projected Incident Cost</h2>
+                                </div>
+                                <div class="hidden h-14 w-14 rounded-2xl border border-cyan-400/25 bg-cyan-400/10 sm:grid place-items-center">
+                                    <span class="text-2xl">⚡</span>
+                                </div>
+                            </div>
+
+                            <div class="rounded-3xl border border-cyan-400/20 bg-slate-950/50 p-5">
+                                <div class="text-xs uppercase tracking-[0.22em] text-slate-400">Total Estimated Cost</div>
+                                <div id="totalCost" class="number-glow mt-3 text-4xl font-black sm:text-5xl">$5,130,000</div>
+                                <p class="mt-3 text-sm leading-6 text-slate-400">The estimate combines direct operational impact, customer churn, and legal/regulatory exposure using industry-weighted assumptions.</p>
+                            </div>
+
+                            <div class="mt-5 grid gap-4">
+                                <div class="stat-card rounded-2xl border border-cyan-400/15 bg-slate-950/35 p-4">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Direct Cost</p>
+                                            <div id="directCost" class="mt-2 text-2xl font-bold text-slate-100">$3,456,000</div>
+                                        </div>
+                                        <span class="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300">Response + Recovery</span>
+                                    </div>
+                                </div>
+
+                                <div class="stat-card rounded-2xl border border-cyan-400/15 bg-slate-950/35 p-4">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Lost Customer Cost</p>
+                                            <div id="customerCost" class="mt-2 text-2xl font-bold text-slate-100">$1,107,000</div>
+                                        </div>
+                                        <span class="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300">Churn Impact</span>
+                                    </div>
+                                </div>
+
+                                <div class="stat-card rounded-2xl border border-cyan-400/15 bg-slate-950/35 p-4">
+                                    <div class="flex items-start justify-between gap-4">
+                                        <div>
+                                            <p class="text-xs uppercase tracking-[0.18em] text-slate-400">Legal & Regulatory Cost</p>
+                                            <div id="legalCost" class="mt-2 text-2xl font-bold text-slate-100">$567,000</div>
+                                        </div>
+                                        <span class="rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-semibold text-cyan-300">Fines + Counsel</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="glass rounded-3xl border border-amber-400/20 p-5 sm:p-6">
+                            <div class="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-amber-300">Legal Disclaimer</div>
+                            <p class="text-sm leading-7 text-slate-300">
+                                This tool is intended solely for estimation and educational purposes. Results are based on averaged market data and do not constitute an offer or financial audit. cs3c.org assumes no liability for business
+                                decisions made on the basis of this calculator.
+                            </p>
+                            <div class="mt-4 flex gap-4 text-xs font-medium text-slate-500">
+                                <a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a>
+                                <a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a>
+                                <span class="text-slate-700">|</span>
+                                <span class="text-slate-500">© 2022 cs3c.org - Cybersecurity Consulting</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <script>
+            const industryConfig = {
+                finance: {
+                    label: 'Finance',
+                    baseCostPerRecord: 280,
+                    multiplier: 1.2,
+                    directRate: 0.64,
+                    customerRate: 0.23,
+                    legalRate: 0.13,
+                },
+                healthcare: {
+                    label: 'Healthcare',
+                    baseCostPerRecord: 320,
+                    multiplier: 1.35,
+                    directRate: 0.66,
+                    customerRate: 0.22,
+                    legalRate: 0.12,
+                },
+                retail: {
+                    label: 'Retail',
+                    baseCostPerRecord: 180,
+                    multiplier: 0.95,
+                    directRate: 0.6,
+                    customerRate: 0.28,
+                    legalRate: 0.12,
+                },
+                it: {
+                    label: 'IT',
+                    baseCostPerRecord: 220,
+                    multiplier: 1.05,
+                    directRate: 0.63,
+                    customerRate: 0.24,
+                    legalRate: 0.13,
+                },
+            };
+
+            const recordsRange = document.getElementById('recordsRange');
+            const industrySelect = document.getElementById('industrySelect');
+
+            const recordsValue = document.getElementById('recordsValue');
+            const costPerRecord = document.getElementById('costPerRecord');
+            const industryMultiplier = document.getElementById('industryMultiplier');
+            const totalCost = document.getElementById('totalCost');
+            const directCost = document.getElementById('directCost');
+            const customerCost = document.getElementById('customerCost');
+            const legalCost = document.getElementById('legalCost');
+
+            const currency = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 0,
+            });
+
+            const integer = new Intl.NumberFormat('en-US');
+
+            function calculateCosts(records, industryKey) {
+                const cfg = industryConfig[industryKey];
+                const total = records * cfg.baseCostPerRecord * cfg.multiplier;
+                return {
+                    total,
+                    direct: total * cfg.directRate,
+                    customer: total * cfg.customerRate,
+                    legal: total * cfg.legalRate,
+                    baseCostPerRecord: cfg.baseCostPerRecord,
+                    multiplier: cfg.multiplier,
+                };
+            }
+
+            function render() {
+                const records = Number(recordsRange.value);
+                const industryKey = industrySelect.value;
+                const result = calculateCosts(records, industryKey);
+
+                recordsValue.textContent = integer.format(records);
+                costPerRecord.textContent = currency.format(result.baseCostPerRecord);
+                industryMultiplier.textContent = `${result.multiplier.toFixed(2)}×`;
+                totalCost.textContent = currency.format(result.total);
+                directCost.textContent = currency.format(result.direct);
+                customerCost.textContent = currency.format(result.customer);
+                legalCost.textContent = currency.format(result.legal);
+            }
+
+            recordsRange.addEventListener('input', render);
+            industrySelect.addEventListener('change', render);
+
+            render();
+        </script>
+    </body>
+</html>
